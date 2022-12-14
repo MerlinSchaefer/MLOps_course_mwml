@@ -41,8 +41,8 @@ def clean_text(text, lower=True, stem=False, stopwords=STOPWORDS):
 
 ## write own Labelencoder based on scikit-learn
 class LabelEncoder:
-    def __init__(self):
-        self.class_to_index = {}
+    def __init__(self, class_to_index={}):
+        self.class_to_index = class_to_index
 
     @property
     def classes(self):
