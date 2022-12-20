@@ -20,14 +20,16 @@ def filter(tag, include=None):
 
 
 def clean_text(text, lower=True, stem=False, stopwords=config.STOPWORDS):
-    """Apply basic cleaning functions to raw text"""
+    """Clean raw text."""
+    # Lower
     if lower:
         text = text.lower()
 
-    # remove stopwords
+    # Remove stopwords
     if len(stopwords):
         pattern = re.compile(r"\b(" + r"|".join(stopwords) + r")\b\s*")
         text = pattern.sub("", text)
+
     # Spacing and filters
     text = re.sub(
         r"([!\"'#$%&()*\+,-./:;<=>?@\\\[\]^_`{|}~])", r" \1 ", text
@@ -68,20 +70,17 @@ def replace_minority_labels(df, label_col, min_freq, new_label="other"):
     return df
 
 
-def preprocess(df, lower, stem, min_freq, accepted_tags=config.ACCEPTED_TAGS):
+# tagifai/data.py
+def preprocess(df, lower, stem, min_freq):
     """Preprocess the data."""
-    df["text"] = f"{df.title} {df.description}"
+    df["text"] = df.title + " " + df.description  # feature engineering
     df.text = df.text.apply(clean_text, lower=lower, stem=stem)  # clean text
-
-    # Replace OOS tags with `other`
     df = replace_oos_labels(
-        df, labels=accepted_tags, label_col="tag", oos_label="other"
-    )
-
-    # Replace tags below min_freq with `other`
+        df=df, labels=config.ACCEPTED_TAGS, label_col="tag", oos_label="other"
+    )  # replace OOS labels
     df = replace_minority_labels(
-        df, label_col="tag", min_freq=min_freq, new_label="other"
-    )
+        df=df, label_col="tag", min_freq=min_freq, new_label="other"
+    )  # replace labels below min freq
 
     return df
 
