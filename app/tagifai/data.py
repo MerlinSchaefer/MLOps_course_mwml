@@ -115,9 +115,7 @@ class LabelEncoder:
 
     def transform(self, y):
         """Transform labels to normalized encoding"""
-        _y = []
-        for label in y:
-            _y.append(self.class_to_index.get(label))
+        _y = [self.class_to_index.get(label) for label in y]
         return np.array(_y)
 
     def encode(self, y):
@@ -125,18 +123,14 @@ class LabelEncoder:
         return self.transform(y)
 
     def inverse_transform(self, y):
-        _y = []
-        for index in y:
-            _y.append(self.index_to_class.get(index))
-        return _y
+        return [self.index_to_class.get(index) for index in y]
 
     def decode(self, y):
         return self.inverse_transform(y)
 
     def fit_transform(self, y):
         self.fit(y)
-        _y = self.transform(y)
-        return _y
+        return self.transform(y)
 
     def save(self, fp):
         with open(fp, "w") as fp:
