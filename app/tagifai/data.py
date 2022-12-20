@@ -1,13 +1,13 @@
 # data.py
+import json
+import re
+from collections import Counter
 import nltk
+import numpy as np
+from config import config
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
-import re
-
-
-nltk.download("stopwords")
-STOPWORDS = stopwords.words("english")
-stemmer = PorterStemmer()
+from sklearn.model_selection import train_test_split
 
 
 def filter(tag, include=None):
@@ -19,7 +19,8 @@ def filter(tag, include=None):
     return tag
 
 
-def clean_text(text, lower=True, stem=False, stopwords=STOPWORDS):
+def clean_text(text, lower=True, stem=False, stopwords=config.STOPWORDS):
+    """Apply basic cleaning functions to raw text"""
     if lower:
         text = text.lower()
 
@@ -41,10 +42,55 @@ def clean_text(text, lower=True, stem=False, stopwords=STOPWORDS):
     # Stemming
     if stem:
         text = " ".join(
-            [stemmer.stem(word, to_lowercase=lower) for word in text.split(" ")]
+            [config.stemmer.stem(word, to_lowercase=lower) for word in text.split(" ")]
         )
 
     return text
+
+
+def replace_oos_labels(df, labels, label_col, oos_label="other"):
+    """Replace out of scope (oos) labels"""
+    oos_tags = [item for item in df[label_col].unique() if item not in labels]
+    df[label_col] = df[label_col].apply(lambda x: "other" if x in oos_tags else x)
+    return df
+
+
+def replace_minority_labels(df, label_col, min_freq, new_label="other"):
+    """Replace minority labels with other label"""
+    labels = Counter(df[label_col].values)
+    labels_above_freq = Counter(
+        label for label in labels.elements() if (labels[label] >= min_freq)
+    )
+    df[label_col] = df[label_col].apply(
+        lambda label: label if label in labels_above_freq else None
+    )
+    df[label_col] = df[label_col].fillna(new_label)
+    return df
+
+
+def preprocess(df, lower, stem, min_freq, accepted_tags=config.ACCEPTED_TAGS):
+    """Preprocess the data."""
+    df["text"] = f"{df.title} {df.description}"
+    df.text = df.text.apply(clean_text, lower=lower, stem=stem)  # clean text
+
+    # Replace OOS tags with `other`
+    df = replace_oos_labels(
+        df, labels=accepted_tags, label_col="tag", oos_label="other"
+    )
+
+    # Replace tags below min_freq with `other`
+    df = replace_minority_labels(
+        df, label_col="tag", min_freq=min_freq, new_label="other"
+    )
+
+    return df
+
+
+def get_data_splits(X, y, train_size=0.7):
+    """Generate balanced data splits."""
+    X_train, X_, y_train, y_ = train_test_split(X, y, train_size=train_size, stratify=y)
+    X_val, X_test, y_val, y_test = train_test_split(X_, y_, train_size=0.5, stratify=y_)
+    return X_train, X_val, X_test, y_train, y_val, y_test
 
 
 ## write own Labelencoder based on scikit-learn
