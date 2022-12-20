@@ -4,11 +4,18 @@ import numpy as np
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 import re
+import random
 
 
 nltk.download("stopwords")
 STOPWORDS = stopwords.words("english")
 stemmer = PorterStemmer()
+
+
+def set_seeds(seed=13):
+    """Set seeds for reproducibility."""
+    np.random.seed(seed)
+    random.seed(seed)
 
 
 def clean_text(text, lower=True, stem=False, stopwords=STOPWORDS):
