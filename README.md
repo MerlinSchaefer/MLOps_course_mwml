@@ -7,7 +7,7 @@ In my repo the explorative part is split into three directories with respective 
 
 ## Structure within `app/`
 
-```
+```bash
 tagifai/
 ├── data/         - training/testing data
 ├── venv/         - virtual environment
@@ -19,12 +19,10 @@ tagifai/
 ## Virtual Environment
 
 To use the package install [pyenv](https://github.com/pyenv/pyenv) and run the following commands:
+
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 python3 -m pip install pip setuptools wheel
 python3 -m pip install -e .
 ```
-
-
-
