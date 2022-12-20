@@ -41,7 +41,6 @@ def train_model(args_filepath):
     artifacts = train.train(df=df, args=args)
     performance = artifacts["performance"]
     print(json.dumps(performance, indent=2))
-    print(df.head())
 
 
 if __name__ == "__main__":

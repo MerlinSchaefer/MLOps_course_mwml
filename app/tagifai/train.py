@@ -19,7 +19,6 @@ def train(args, df, trial=None):
         df = df.sample(frac=1).reset_index(drop=True)
     df = df[: args.subset]  # None = all samples
     df = data.preprocess(df, lower=args.lower, stem=args.stem, min_freq=args.min_freq)
-    print(df.head())
     label_encoder = data.LabelEncoder().fit(df.tag)
     X_train, X_val, X_test, y_train, y_val, y_test = data.get_data_splits(
         X=df.text.to_numpy(), y=label_encoder.encode(df.tag)
