@@ -9,8 +9,11 @@ In my repo the explorative part is split into three directories with respective 
 
 ```
 tagifai/
+├── data/         - training/testing data
+├── venv/         - virtual environment
 ├── main.py       - training/optimization pipelines
 └── utils.py      - supplementary utilities
+
 ```
 
 ## Virtual Environment
