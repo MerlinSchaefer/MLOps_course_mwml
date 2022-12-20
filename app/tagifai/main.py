@@ -1,9 +1,8 @@
 # tagifai/main.py
-import pandas as pd
 from pathlib import Path
-
-from config import config
+import pandas as pd
 import utils
+from config import config
 
 
 def elt_data():
