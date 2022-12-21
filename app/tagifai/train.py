@@ -1,5 +1,7 @@
 # tagifai/train.py
 import json
+from argparse import Namespace
+from typing import Dict
 
 import mlflow
 import numpy as np
@@ -13,8 +15,17 @@ from sklearn.metrics import log_loss
 from tagifai import data, evaluate, predict
 
 
-def train(args, df, trial=None):
-    """Train model on data."""
+def train(args: Namespace, df: pd.DataFrame, trial: optuna.trial._trial = None) -> Dict:
+    """Train model on data.
+    Args:
+        args (Namespace): arguments to use for training.
+        df (pd.DataFrame): data for training.
+        trial (optuna.trial._trial.Trial, optional): optimization trial. Defaults to None.
+    Raises:
+        optuna.TrialPruned: early stopping of trial if it's performing poorly.
+    Returns:
+        Dict: artifacts from the run.
+    """
 
     # Setup
     utils.set_seeds()
@@ -102,8 +113,17 @@ def train(args, df, trial=None):
     }
 
 
-def objective(args, df, trial):
-    """Objective function for optimization trials."""
+def objective(
+    args: Namespace, df: pd.DataFrame, trial: optuna.trial._trial.Trial
+) -> float:
+    """Objective function for optimization trials.
+    Args:
+        args (Namespace): arguments to use for training.
+        df (pd.DataFrame): data for training.
+        trial (optuna.trial._trial.Trial, optional): optimization trial.
+    Returns:
+        float: metric value to be used for optimization.
+    """
     # Parameters to tune
     args.analyzer = trial.suggest_categorical("analyzer", ["word", "char", "char_wb"])
     args.ngram_range = (2, trial.suggest_int("ngram_max_range", 3, 10))
