@@ -4,6 +4,7 @@ import tempfile
 import warnings
 from argparse import Namespace
 from pathlib import Path
+from typing import Dict, List
 
 import joblib
 import mlflow
@@ -37,8 +38,13 @@ def elt_data():
         print("(Fallback logs) Data extracted and saved.")
 
 
-def train_model(args_filepath, experiment_name, run_name):
-    """Train a model given an arguments file"""
+def train_model(args_filepath: str, experiment_name: str, run_name: str) -> None:
+    """Train a model given arguments. Log metrics and save artifacts in model registry.
+    Args:
+        args_filepath (str): location of args JSON.
+        experiment_name (str): name of experiment.
+        run_name (str): name of specific run in experiment.
+    """
     # Load labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
 
@@ -79,11 +85,16 @@ def train_model(args_filepath, experiment_name, run_name):
 
 
 def optimize(
-    args_filepath,
-    num_trials,
-    study_name="optimization",
-):
-    """Optimize hyperparameters"""
+    args_filepath: str,
+    num_trials: int,
+    study_name: str = "optimization",
+) -> None:
+    """Optimize hyperparameters. Log metrics and save best run in logs and args JSON.
+    Args:
+        args_filepath (str): location of args JSON.
+        study_name (str): name of optimization study.
+        num_trials (int): number of trials to run in study.
+    """
     # Load labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
     # Load args
@@ -91,7 +102,7 @@ def optimize(
     # Optimize
     pruner = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=5)
     study = optuna.create_study(
-        study_name="optimization", direction="maximize", pruner=pruner
+        study_name=study_name, direction="maximize", pruner=pruner
     )
     mlflow_callback = MLflowCallback(
         tracking_uri=mlflow.get_tracking_uri(), metric_name="f1"
@@ -110,8 +121,13 @@ def optimize(
     config.logger.info(f"Optimization concluded with best trial:\n {best_trial_dict}")
 
 
-def load_artifacts(run_id):
-    """Load artifacts for a given run_id."""
+def load_artifacts(run_id: str) -> Dict:
+    """Load artifacts for a given run_id.
+    Args:
+        run_id (str): id of run to load artifacts from.
+    Returns:
+        Dict: run's artifacts.
+    """
     # Locate specifics artifacts directory
     experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
     artifacts_dir = Path(config.MODEL_REGISTRY, experiment_id, run_id, "artifacts")
@@ -132,8 +148,23 @@ def load_artifacts(run_id):
     }
 
 
-def predict_tag(text, run_id=None):
-    """Predict tag for text"""
+def predict_tag(text: str, run_id: str = None) -> List[Dict[str, str]]:
+    """Predict tag for text.
+
+    Args:
+        text (str): input text to predict label for.
+        run_id (str, optional): run id to load artifacts for prediction. Defaults to None.
+
+    Returns:
+        List[Dict[str,str]]: Predictions in the form of:
+        ```python
+        [{
+            "input_text": text,
+            "predicted_tags": tag,
+        },
+        ...]
+    ```
+    """
     if not run_id:
         # use latest run
         run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()

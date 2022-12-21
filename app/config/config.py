@@ -16,7 +16,7 @@ DATA_DIR = Path(BASE_DIR, "data")
 # Create dirs
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Assets
+# Data source assets
 PROJECTS_URL = "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/projects.csv"
 TAGS_URL = (
     "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/tags.csv"
@@ -24,6 +24,7 @@ TAGS_URL = (
 
 
 # Data preprocessing
+# define accepted tags for classifier (everything else will be 'other')
 ACCEPTED_TAGS = [
     "natural-language-processing",
     "computer-vision",

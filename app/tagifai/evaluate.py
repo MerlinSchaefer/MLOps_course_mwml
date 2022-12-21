@@ -1,5 +1,8 @@
 # tagifai/evaluate.py
+from typing import Dict, List
+
 import numpy as np
+import pandas as pd
 from sklearn.metrics import precision_recall_fscore_support
 from snorkel.slicing import PandasSFApplier, slicing_function
 
@@ -18,8 +21,17 @@ def short_text(x):
     return len(x.text.split()) < 8  # less than 8 words
 
 
-def get_slice_metrics(y_true, y_pred, slices):
-    """Generate metrics for slices of data."""
+def get_slice_metrics(
+    y_true: np.ndarray, y_pred: np.ndarray, slices: np.recarray
+) -> Dict:
+    """Generate metrics for slices of data.
+    Args:
+        y_true (np.ndarray): true labels.
+        y_pred (np.ndarray): predicted labels.
+        slices (np.recarray): generated slices.
+    Returns:
+        Dict: slice metrics.
+    """
     metrics = {}
     for slice_name in slices.dtype.names:
         mask = slices[slice_name].astype(bool)
@@ -36,8 +48,18 @@ def get_slice_metrics(y_true, y_pred, slices):
     return metrics
 
 
-def get_metrics(y_true, y_pred, classes, df=None):
-    """Performance metrics using ground truths and predictions."""
+def get_metrics(
+    y_true: np.ndarray, y_pred: np.ndarray, classes: List, df: pd.DataFrame = None
+) -> Dict:
+    """Performance metrics using ground truths and predictions.
+    Args:
+        y_true (np.ndarray): true labels.
+        y_pred (np.ndarray): predicted labels.
+        classes (List): list of class labels.
+        df (pd.DataFrame, optional): Dataframe to generate slice metrics on. Defaults to None.
+    Returns:
+        Dict: performance metrics.
+    """
     # Performance
     metrics = {"overall": {}, "class": {}}
 

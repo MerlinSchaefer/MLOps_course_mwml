@@ -1,17 +1,32 @@
 # tagifai/predict.py
+from typing import Dict, List
+
 import numpy as np
 
 
 # Custom predict function
-def custom_predict(y_prob, threshold, index):
+def custom_predict(y_prob: np.ndarray, threshold: float, index: int) -> np.ndarray:
     """Custom predict function that defaults
-    to an index if conditions are not met."""
+    to an index if conditions are not met.
+    Args:
+        y_prob (np.ndarray): predicted probabilities
+        threshold (float): minimum softmax score to predict majority class
+        index (int): label index to use if custom conditions is not met.
+    Returns:
+        np.ndarray: predicted label indices.
+    """
     y_pred = [np.argmax(p) if max(p) > threshold else index for p in y_prob]
     return np.array(y_pred)
 
 
-def predict(texts, artifacts):
-    """Predict tags for given tags with specific model settings"""
+def predict(texts: List, artifacts: Dict) -> List:
+    """Predict tags for given texts.
+    Args:
+        texts (List): raw input texts to classify.
+        artifacts (Dict): artifacts from a run.
+    Returns:
+        List: predictions for input texts.
+    """
     x = artifacts["vectorizer"].transform(texts)
     y_pred = custom_predict(
         y_prob=artifacts["model"].predict_proba(x),
