@@ -38,7 +38,7 @@ def elt_data():
         print("(Fallback logs) Data extracted and saved.")
 
 
-def train_model(args_filepath: str, experiment_name: str, run_name_str) -> None:
+def train_model(args_filepath: str, experiment_name: str, run_name: str) -> None:
     """Train a model given arguments. Log metrics and save artifacts in model registry.
     Args:
         args_filepath (str): location of args JSON.
