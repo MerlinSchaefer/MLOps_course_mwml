@@ -2,7 +2,7 @@
 import json
 import re
 from collections import Counter
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import nltk
 import numpy as np
@@ -151,18 +151,16 @@ def preprocess(
     return df
 
 
-def get_data_splits(
-    X: pd.DataFrame, y: pd.Series, train_size: float = 0.7
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+def get_data_splits(X: pd.Series, y: np.ndarray, train_size: float = 0.7) -> Tuple:
     """Generates balanced datasets for training, validation, and testing.
 
     Args:
-        X (pd.DataFrame): Features Dataframe.
-        y (pd.Series): Series containing the labels.
+        X (pd.Series): Features Series.
+        y (np.ndarray): Array containing the labels.
         train_size (float, optional): Size of the training dataset. Validation and test sizes will be (1-train_size)/2 respectively. Defaults to 0.7.
 
     Returns:
-        Tuple[ pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series ]: Tuple of all datasets for train, val and test.
+        Tuple: Tuple of all datasets for train, val and test.
     """
     X_train, X_, y_train, y_ = train_test_split(X, y, train_size=train_size, stratify=y)
     X_val, X_test, y_val, y_test = train_test_split(X_, y_, train_size=0.5, stratify=y_)
@@ -171,7 +169,16 @@ def get_data_splits(
 
 ## write own Labelencoder based on scikit-learn
 class LabelEncoder:
-    def __init__(self, class_to_index={}):
+    """Encode labels into unique indices.
+    ```python
+    # Encode labels
+    label_encoder = LabelEncoder()
+    label_encoder.fit(labels)
+    y = label_encoder.encode(labels)
+    ```
+    """
+
+    def __init__(self, class_to_index: Dict = {}) -> None:
         self.class_to_index = class_to_index
 
     @property
@@ -182,39 +189,66 @@ class LabelEncoder:
     def index_to_class(self):
         return {v: k for k, v in self.class_to_index.items()}
 
-    def fit(self, y):
-        """Fit the label encoder"""
+    def fit(self, y: List):
+        """Fit a list of labels to the encoder.
+        Args:
+            y (List): raw labels.
+        Returns:
+            Fitted LabelEncoder instance.
+        """
         unique_labels = np.unique(y)
         for i, label in enumerate(unique_labels):
             self.class_to_index[label] = i
         return self
 
-    def transform(self, y):
-        """Transform labels to normalized encoding"""
+    def transform(self, y: List) -> np.ndarray:
+        """Encode a list of raw labels.
+        Args:
+            y (List): raw labels.
+        Returns:
+            np.ndarray: encoded labels as indices.
+        """
         _y = [self.class_to_index.get(label) for label in y]
         return np.array(_y)
 
-    def encode(self, y):
+    def encode(self, y: List):
         """Alternative for transform, implemented as course uses encode/decode"""
         return self.transform(y)
 
-    def inverse_transform(self, y):
+    def inverse_transform(self, y: List) -> List:
+        """Decode a list of indices.
+        Args:
+            y (List): indices.
+        Returns:
+            List: labels.
+        """
         return [self.index_to_class.get(index) for index in y]
 
-    def decode(self, y):
+    def decode(self, y: List):
+        """Alternative for inverse_transform, implemented as course uses encode/decode"""
         return self.inverse_transform(y)
 
     def fit_transform(self, y):
         self.fit(y)
         return self.transform(y)
 
-    def save(self, fp):
+    def save(self, fp: str) -> None:
+        """Save class instance to JSON file.
+        Args:
+            fp (str): filepath to save to.
+        """
         with open(fp, "w") as fp:
             contents = {"class_to_index": self.class_to_index}
             json.dump(contents, fp, indent=4, sort_keys=False)
 
     @classmethod
-    def load(cls, fp):
+    def load(cls, fp: str):
+        """Load instance of LabelEncoder from file.
+        Args:
+            fp (str): JSON filepath to load from.
+        Returns:
+            LabelEncoder instance.
+        """
         with open(fp, "r") as fp:
             kwargs = json.load(fp=fp)
         return cls(**kwargs)
