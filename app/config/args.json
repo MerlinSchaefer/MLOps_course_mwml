@@ -1,15 +1,20 @@
 {
-    "shuffle": true,
-    "subset": null,
-    "lower":true,
-    "stem":false,
-    "min_freq" : 75,
-    "analyzer":"char_wb",
-    "ngram_range":[2,7],
-    "alpha":1e-4,
-    "learning_rate":"adaptive",
-    "eta0":1.0,
-    "power_t":0.4,
-    "warm_start" : true,
-    "num_epochs":100
+  "shuffle": true,
+  "subset": null,
+  "lower": true,
+  "stem": false,
+  "min_freq": 75,
+  "analyzer": "char_wb",
+  "ngram_range": [
+    2,
+    6
+  ],
+  "alpha": 0.0001,
+  "learning_rate": "constant",
+  "eta0": 0.5645425038263872,
+  "power_t": 0.4193632017640455,
+  "warm_start": true,
+  "num_epochs": 100,
+  "threshold": 0.5345199902612255,
+  "ngram_max_range": 7
 }

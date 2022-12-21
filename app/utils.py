@@ -15,10 +15,10 @@ def replace_dash(x):
     return x.replace("-", " ")
 
 
-def save_dict(d, filepath):
-    """Save dict to a json file."""
+def save_dict(d, filepath, cls=None, sortkeys=False):
+    """Save a dictionary to a specific location."""
     with open(filepath, "w") as fp:
-        json.dump(d, indent=2, sort_keys=False, fp=fp)
+        json.dump(d, indent=2, fp=fp, cls=cls, sort_keys=sortkeys)
 
 
 def load_dict(filepath):
