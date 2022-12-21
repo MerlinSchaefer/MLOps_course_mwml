@@ -13,7 +13,7 @@ import utils
 from config import config
 from numpyencoder import NumpyEncoder
 from optuna.integration.mlflow import MLflowCallback
-from tagifai import data, train
+from tagifai import data, predict, train
 
 warnings.filterwarnings("ignore")  # necessary for SGD max_iter warning
 
@@ -60,6 +60,7 @@ def train_model(args_filepath, experiment_name, run_name):
 
         # Log artifacts
         with tempfile.TemporaryDirectory() as dp:
+            utils.save_dict(vars(artifacts["args"]), (Path(dp, "args.json")))
             artifacts["label_encoder"].save(Path(dp, "label_encoder.json"))
             joblib.dump(artifacts["vectorizer"], Path(dp, "vectorizer.pkl"))
             joblib.dump(artifacts["model"], Path(dp, "model.pkl"))
@@ -103,7 +104,44 @@ def optimize(
     )
 
 
+def load_artifacts(run_id):
+    """Load artifacts for a given run_id."""
+    # Locate specifics artifacts directory
+    experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
+    artifacts_dir = Path(config.MODEL_REGISTRY, experiment_id, run_id, "artifacts")
+
+    # Load objects from run
+    args = Namespace(**utils.load_dict(filepath=Path(artifacts_dir, "args.json")))
+    vectorizer = joblib.load(Path(artifacts_dir, "vectorizer.pkl"))
+    label_encoder = data.LabelEncoder.load(fp=Path(artifacts_dir, "label_encoder.json"))
+    model = joblib.load(Path(artifacts_dir, "model.pkl"))
+    performance = utils.load_dict(filepath=Path(artifacts_dir, "performance.json"))
+
+    return {
+        "args": args,
+        "label_encoder": label_encoder,
+        "vectorizer": vectorizer,
+        "model": model,
+        "performance": performance,
+    }
+
+
+def predict_tag(text, run_id=None):
+    """Predict tag for text"""
+    if not run_id:
+        # use latest run
+        run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()
+    artifacts = load_artifacts(run_id=run_id)
+    prediction = predict.predict(texts=[text], artifacts=artifacts)
+    print(json.dumps(prediction, indent=2))
+    return prediction
+
+
 if __name__ == "__main__":
     args_filepath = Path(config.CONFIG_DIR, "args.json")
     train_model(args_filepath, experiment_name="test_baselines", run_name="sgd")
     # optimize(args_filepath, study_name="testrun", num_trials=10)
+    print("Model trained.")
+    text = "Transfer learning with transformers for text classification."
+    run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()
+    predict_tag(text=text, run_id=run_id)
