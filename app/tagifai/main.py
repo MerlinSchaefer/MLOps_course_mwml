@@ -1,9 +1,11 @@
 # tagifai/main.py
 import json
+import tempfile
 import warnings
 from argparse import Namespace
 from pathlib import Path
 
+import joblib
 import mlflow
 import optuna
 import pandas as pd
@@ -35,16 +37,38 @@ def elt_data():
         print("(Fallback logs) Data extracted and saved.")
 
 
-def train_model(args_filepath):
+def train_model(args_filepath, experiment_name, run_name):
     """Train a model given an arguments file"""
     # Load labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
 
     # Train
     args = Namespace(**utils.load_dict(filepath=args_filepath))
-    artifacts = train.train(df=df, args=args)
-    performance = artifacts["performance"]
-    print(json.dumps(performance, indent=2))
+    mlflow.set_experiment(experiment_name=experiment_name)
+    with mlflow.start_run(run_name=run_name):
+        run_id = mlflow.active_run().info.run_id
+        print(f"Run ID : {run_id}")
+        artifacts = train.train(df=df, args=args)
+        performance = artifacts["performance"]
+        print(json.dumps(performance, indent=2))
+
+        # log metrics and parameters
+        mlflow.log_metrics({"precision": performance["overall"]["precision"]})
+        mlflow.log_metrics({"recall": performance["overall"]["recall"]})
+        mlflow.log_metrics({"f1": performance["overall"]["f1"]})
+        mlflow.log_params(vars(artifacts["args"]))
+
+        # Log artifacts
+        with tempfile.TemporaryDirectory() as dp:
+            artifacts["label_encoder"].save(Path(dp, "label_encoder.json"))
+            joblib.dump(artifacts["vectorizer"], Path(dp, "vectorizer.pkl"))
+            joblib.dump(artifacts["model"], Path(dp, "model.pkl"))
+            utils.save_dict(performance, Path(dp, "performance.json"))
+            mlflow.log_artifacts(dp)
+
+    # Save to config
+    open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
+    utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
 
 def optimize(
@@ -81,5 +105,5 @@ def optimize(
 
 if __name__ == "__main__":
     args_filepath = Path(config.CONFIG_DIR, "args.json")
-    # train_model(args_filepath)
-    optimize(args_filepath, study_name="testrun", num_trials=10)
+    train_model(args_filepath, experiment_name="test_baselines", run_name="sgd")
+    # optimize(args_filepath, study_name="testrun", num_trials=10)

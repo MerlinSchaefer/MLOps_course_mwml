@@ -11,5 +11,5 @@
     "eta0":1.0,
     "power_t":0.4,
     "warm_start" : true,
-    "num_epochs":500
+    "num_epochs":100
 }

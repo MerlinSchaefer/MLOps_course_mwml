@@ -64,6 +64,7 @@ def train(args, df, trial=None):
                 f"val_loss: {val_loss:.5f}"
             )
 
+        # Log fitting metrics
         if not trial:
             mlflow.log_metrics(
                 {"train_loss": train_loss, "val_loss": val_loss}, step=epoch
