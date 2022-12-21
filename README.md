@@ -8,12 +8,20 @@ In my repo the explorative part is split into three directories with respective 
 ## Structure within `app/`
 
 ```bash
-tagifai/
-├── data/         - training/testing data
-├── venv/         - virtual environment
-├── main.py       - training/optimization pipelines
-└── utils.py      - supplementary utilities
 
+├── venv/            - virtual environment (needs to be created first)
+├── config/          - config settings
+├── docs/            - interative documentation (see below)
+├── tagifai/
+    ├── data.py      - data processing utilities
+    ├── evaluate.py  - evaluation components
+    ├── main.py      - training/optimization operations
+    ├── predict.py   - inference utilities
+    └── train.py     - training utilities
+├── setup.py         - setup script
+├── requirements.txt - training/optimization pipelines
+├── setup.py         - setup script
+└── utils.py         - supplementary utilities
 ```
 
 ## Virtual Environment
@@ -25,4 +33,12 @@ python3 -m venv venv
 source venv/bin/activate
 python3 -m pip install pip setuptools wheel
 python3 -m pip install -e .
+```
+
+## Documentation
+
+To view the documentation navigate to the `app/` directory activate the virtual environment and run:
+
+```bash
+python3 -m mkdocs serve
 ```
