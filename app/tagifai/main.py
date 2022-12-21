@@ -31,7 +31,7 @@ def elt_data():
     df = df[df["tag"].notnull()]
     df.to_csv(Path(config.DATA_DIR, "labeled_projects.csv"), index=False)
     try:
-        logger.info("Data extracted and saved.")
+        config.logger.info("Data extracted and saved.")
     except NameError:
         print("No logger. Continuing without.")
         print("(Fallback logs) Data extracted and saved.")
@@ -47,10 +47,16 @@ def train_model(args_filepath, experiment_name, run_name):
     mlflow.set_experiment(experiment_name=experiment_name)
     with mlflow.start_run(run_name=run_name):
         run_id = mlflow.active_run().info.run_id
-        print(f"Run ID : {run_id}")
         artifacts = train.train(df=df, args=args)
         performance = artifacts["performance"]
-        print(json.dumps(performance, indent=2))
+        try:
+            config.logger.info("Model Training")
+            config.logger.info(f"Run ID : {run_id}")
+            config.logger.info(json.dumps(performance, indent=2))
+        except NameError:
+            print("No logger. Continuing without.")
+            print(f"Run ID : {run_id}")
+            print(json.dumps(performance, indent=2))
 
         # log metrics and parameters
         mlflow.log_metrics({"precision": performance["overall"]["precision"]})
@@ -99,9 +105,9 @@ def optimize(
     # Best trial
     trials_df = study.trials_dataframe()
     trials_df = trials_df.sort_values(["user_attrs_f1"], ascending=False)
-    utils.save_dict(
-        {**args.__dict__, **study.best_trial.params}, args_filepath, cls=NumpyEncoder
-    )
+    best_trial_dict = {**args.__dict__, **study.best_trial.params}
+    utils.save_dict(best_trial_dict, args_filepath, cls=NumpyEncoder)
+    config.logger.info(f"Optimization concluded with best trial:\n {best_trial_dict}")
 
 
 def load_artifacts(run_id):
@@ -139,8 +145,8 @@ def predict_tag(text, run_id=None):
 
 if __name__ == "__main__":
     args_filepath = Path(config.CONFIG_DIR, "args.json")
-    train_model(args_filepath, experiment_name="test_baselines", run_name="sgd")
-    # optimize(args_filepath, study_name="testrun", num_trials=10)
+    # train_model(args_filepath, experiment_name="test_baselines", run_name="sgd")
+    optimize(args_filepath, study_name="testrun", num_trials=10)
     print("Model trained.")
     text = "Transfer learning with transformers for text classification."
     run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()
