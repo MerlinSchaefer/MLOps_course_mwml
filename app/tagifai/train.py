@@ -1,13 +1,16 @@
 # tagifai/train.py
-from imblearn.over_sampling import RandomOverSampler
 import json
+
+import mlflow
 import numpy as np
+import optuna
 import pandas as pd
+import utils
+from imblearn.over_sampling import RandomOverSampler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import log_loss
-import utils
-from tagifai import data, predict, evaluate
+from tagifai import data, evaluate, predict
 
 
 def train(args, df, trial=None):
@@ -61,6 +64,17 @@ def train(args, df, trial=None):
                 f"val_loss: {val_loss:.5f}"
             )
 
+        if not trial:
+            mlflow.log_metrics(
+                {"train_loss": train_loss, "val_loss": val_loss}, step=epoch
+            )
+
+        # # Pruning (for optimization in next section)
+        if trial:
+            trial.report(val_loss, epoch)
+            if trial.should_prune():
+                raise optuna.TrialPruned()
+
     # Threshold
     y_pred = model.predict(X_val)
     y_prob = model.predict_proba(X_val)
@@ -85,3 +99,27 @@ def train(args, df, trial=None):
         "model": model,
         "performance": performance,
     }
+
+
+def objective(args, df, trial):
+    """Objective function for optimization trials."""
+    # Parameters to tune
+    args.analyzer = trial.suggest_categorical("analyzer", ["word", "char", "char_wb"])
+    args.ngram_range = (2, trial.suggest_int("ngram_max_range", 3, 10))
+    args.learning_rate = trial.suggest_categorical(
+        "learning_rate", ["constant", "adaptive"]
+    )
+    args.eta0 = trial.suggest_loguniform("eta0", 1e-2, 1e0)
+    args.power_t = trial.suggest_uniform("power_t", 0.1, 0.5)
+
+    # Train & evaluate
+    artifacts = train(args=args, df=df, trial=trial)
+
+    # Set additional attributes
+    overall_performance = artifacts["performance"]["overall"]
+    print(json.dumps(overall_performance, indent=2))
+    trial.set_user_attr("precision", overall_performance["precision"])
+    trial.set_user_attr("recall", overall_performance["recall"])
+    trial.set_user_attr("f1", overall_performance["f1"])
+
+    return overall_performance["f1"]

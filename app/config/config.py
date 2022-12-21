@@ -1,6 +1,7 @@
 # config.py
 from pathlib import Path
 
+import mlflow
 import nltk
 from nltk import PorterStemmer
 from nltk.corpus import stopwords
@@ -30,3 +31,10 @@ ACCEPTED_TAGS = [
 nltk.download("stopwords")
 STOPWORDS = stopwords.words("english")
 stemmer = PorterStemmer()
+
+
+# Model tracking
+STORES_DIR = Path(BASE_DIR, "stores")
+MODEL_REGISTRY = Path(BASE_DIR, "model")
+MODEL_REGISTRY.mkdir(parents=True, exist_ok=True)
+mlflow.set_tracking_uri(f"file://{str(MODEL_REGISTRY.absolute())}")  # add / for windows
