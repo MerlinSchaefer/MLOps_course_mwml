@@ -1,24 +1,35 @@
+# data.py
 import json
+import re
+from collections import Counter
 import nltk
 import numpy as np
+from config import config
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
-import re
+from sklearn.model_selection import train_test_split
 
 
-nltk.download("stopwords")
-STOPWORDS = stopwords.words("english")
-stemmer = PorterStemmer()
+def filter(tag, include=None):
+    """Determine if a given tag is to be included."""
+    if include is None:
+        include = []
+    if tag not in include:
+        tag = None
+    return tag
 
 
-def clean_text(text, lower=True, stem=False, stopwords=STOPWORDS):
+def clean_text(text, lower=True, stem=False, stopwords=config.STOPWORDS):
+    """Clean raw text."""
+    # Lower
     if lower:
         text = text.lower()
 
-    # remove stopwords
+    # Remove stopwords
     if len(stopwords):
         pattern = re.compile(r"\b(" + r"|".join(stopwords) + r")\b\s*")
         text = pattern.sub("", text)
+
     # Spacing and filters
     text = re.sub(
         r"([!\"'#$%&()*\+,-./:;<=>?@\\\[\]^_`{|}~])", r" \1 ", text
@@ -33,10 +44,52 @@ def clean_text(text, lower=True, stem=False, stopwords=STOPWORDS):
     # Stemming
     if stem:
         text = " ".join(
-            [stemmer.stem(word, to_lowercase=lower) for word in text.split(" ")]
+            [config.stemmer.stem(word, to_lowercase=lower) for word in text.split(" ")]
         )
 
     return text
+
+
+def replace_oos_labels(df, labels, label_col, oos_label="other"):
+    """Replace out of scope (oos) labels"""
+    oos_tags = [item for item in df[label_col].unique() if item not in labels]
+    df[label_col] = df[label_col].apply(lambda x: "other" if x in oos_tags else x)
+    return df
+
+
+def replace_minority_labels(df, label_col, min_freq, new_label="other"):
+    """Replace minority labels with other label"""
+    labels = Counter(df[label_col].values)
+    labels_above_freq = Counter(
+        label for label in labels.elements() if (labels[label] >= min_freq)
+    )
+    df[label_col] = df[label_col].apply(
+        lambda label: label if label in labels_above_freq else None
+    )
+    df[label_col] = df[label_col].fillna(new_label)
+    return df
+
+
+# tagifai/data.py
+def preprocess(df, lower, stem, min_freq):
+    """Preprocess the data."""
+    df["text"] = df.title + " " + df.description  # feature engineering
+    df.text = df.text.apply(clean_text, lower=lower, stem=stem)  # clean text
+    df = replace_oos_labels(
+        df=df, labels=config.ACCEPTED_TAGS, label_col="tag", oos_label="other"
+    )  # replace OOS labels
+    df = replace_minority_labels(
+        df=df, label_col="tag", min_freq=min_freq, new_label="other"
+    )  # replace labels below min freq
+
+    return df
+
+
+def get_data_splits(X, y, train_size=0.7):
+    """Generate balanced data splits."""
+    X_train, X_, y_train, y_ = train_test_split(X, y, train_size=train_size, stratify=y)
+    X_val, X_test, y_val, y_test = train_test_split(X_, y_, train_size=0.5, stratify=y_)
+    return X_train, X_val, X_test, y_train, y_val, y_test
 
 
 ## write own Labelencoder based on scikit-learn
@@ -61,9 +114,7 @@ class LabelEncoder:
 
     def transform(self, y):
         """Transform labels to normalized encoding"""
-        _y = []
-        for label in y:
-            _y.append(self.class_to_index.get(label))
+        _y = [self.class_to_index.get(label) for label in y]
         return np.array(_y)
 
     def encode(self, y):
@@ -71,18 +122,14 @@ class LabelEncoder:
         return self.transform(y)
 
     def inverse_transform(self, y):
-        _y = []
-        for index in y:
-            _y.append(self.index_to_class.get(index))
-        return _y
+        return [self.index_to_class.get(index) for index in y]
 
     def decode(self, y):
         return self.inverse_transform(y)
 
     def fit_transform(self, y):
         self.fit(y)
-        _y = self.transform(y)
-        return _y
+        return self.transform(y)
 
     def save(self, fp):
         with open(fp, "w") as fp:

@@ -133,3 +133,7 @@ dmypy.json
 
 #mlflow
 experiments/
+model/
+
+# custom
+app/data/
