@@ -2,7 +2,7 @@
 
 This repo contains my version of the [MadeWithML MLOps course](https://github.com/GokuMohandas/mlops-course).
 
-I slightly modified some things but the steps are the same.
+I slightly modified some things but the main steps are the same.
 In my repo the explorative part is split into three directories with respective notebooks (`Design`, `Data`, `Modeling`), everything else can be found in the `app` directory.
 
 ## Structure within `app/`
@@ -26,13 +26,18 @@ In my repo the explorative part is split into three directories with respective 
 
 ## Virtual Environment
 
-To use the package install [pyenv](https://github.com/pyenv/pyenv) and run the following commands:
+To use the package install [pyenv](https://github.com/pyenv/pyenv), and run the following commands inside the `app/` directory:
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 python3 -m pip install pip setuptools wheel
 python3 -m pip install -e .
+```
+alternatively run install make and run 
+
+```bash
+make venv
 ```
 
 ## Documentation
