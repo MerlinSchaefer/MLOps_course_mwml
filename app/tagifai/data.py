@@ -6,8 +6,9 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-from config import config
 from sklearn.model_selection import train_test_split
+
+from config import config
 
 
 def filter(tag: str, include: List[str] = None) -> str:

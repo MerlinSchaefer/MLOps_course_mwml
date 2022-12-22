@@ -7,11 +7,12 @@ import mlflow
 import numpy as np
 import optuna
 import pandas as pd
-import utils
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import log_loss
+
+import utils
 from tagifai import data, evaluate, predict
 
 
