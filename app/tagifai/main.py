@@ -10,10 +10,11 @@ import joblib
 import mlflow
 import optuna
 import pandas as pd
-import utils
-from config import config
 from numpyencoder import NumpyEncoder
 from optuna.integration.mlflow import MLflowCallback
+
+import utils
+from config import config
 from tagifai import data, predict, train
 
 warnings.filterwarnings("ignore")  # necessary for SGD max_iter warning
@@ -101,12 +102,8 @@ def optimize(
     args = Namespace(**utils.load_dict(filepath=args_filepath))
     # Optimize
     pruner = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=5)
-    study = optuna.create_study(
-        study_name=study_name, direction="maximize", pruner=pruner
-    )
-    mlflow_callback = MLflowCallback(
-        tracking_uri=mlflow.get_tracking_uri(), metric_name="f1"
-    )
+    study = optuna.create_study(study_name=study_name, direction="maximize", pruner=pruner)
+    mlflow_callback = MLflowCallback(tracking_uri=mlflow.get_tracking_uri(), metric_name="f1")
     study.optimize(
         lambda trial: train.objective(args, df, trial),
         n_trials=num_trials,

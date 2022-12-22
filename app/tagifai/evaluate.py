@@ -21,9 +21,7 @@ def short_text(x):
     return len(x.text.split()) < 8  # less than 8 words
 
 
-def get_slice_metrics(
-    y_true: np.ndarray, y_pred: np.ndarray, slices: np.recarray
-) -> Dict:
+def get_slice_metrics(y_true: np.ndarray, y_pred: np.ndarray, slices: np.recarray) -> Dict:
     """Generate metrics for slices of data.
     Args:
         y_true (np.ndarray): true labels.
@@ -64,9 +62,7 @@ def get_metrics(
     metrics = {"overall": {}, "class": {}}
 
     # Overall metrics
-    overall_metrics = precision_recall_fscore_support(
-        y_true, y_pred, average="weighted"
-    )
+    overall_metrics = precision_recall_fscore_support(y_true, y_pred, average="weighted")
     metrics["overall"]["precision"] = overall_metrics[0]
     metrics["overall"]["recall"] = overall_metrics[1]
     metrics["overall"]["f1"] = overall_metrics[2]
@@ -85,8 +81,6 @@ def get_metrics(
     # Slice metrics
     if df is not None:
         slices = PandasSFApplier([nlp_cnn, short_text]).apply(df)
-        metrics["slices"] = get_slice_metrics(
-            y_true=y_true, y_pred=y_pred, slices=slices
-        )
+        metrics["slices"] = get_slice_metrics(y_true=y_true, y_pred=y_pred, slices=slices)
 
     return metrics
