@@ -17,10 +17,10 @@ DATA_DIR = Path(BASE_DIR, "data")
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Data source assets
-PROJECTS_URL = "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/projects.csv"
-TAGS_URL = (
-    "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/tags.csv"
+PROJECTS_URL = (
+    "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/projects.csv"
 )
+TAGS_URL = "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/tags.csv"
 
 
 # Data preprocessing
