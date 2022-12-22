@@ -2,14 +2,11 @@
 import json
 import re
 from collections import Counter
-from typing import List, Tuple, Dict
+from typing import Dict, List, Tuple
 
-import nltk
 import numpy as np
 import pandas as pd
 from config import config
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
 from sklearn.model_selection import train_test_split
 
 
@@ -71,9 +68,7 @@ def clean_text(
 
     # Stemming
     if stem:
-        text = " ".join(
-            [config.stemmer.stem(word, to_lowercase=lower) for word in text.split(" ")]
-        )
+        text = " ".join([config.stemmer.stem(word, to_lowercase=lower) for word in text.split(" ")])
 
     return text
 
@@ -113,19 +108,13 @@ def replace_minority_labels(
         pd.DataFrame: Feature Dataframe with labels column adjusted to allowed labels.
     """
     labels = Counter(df[label_col].values)
-    labels_above_freq = Counter(
-        label for label in labels.elements() if (labels[label] >= min_freq)
-    )
-    df[label_col] = df[label_col].apply(
-        lambda label: label if label in labels_above_freq else None
-    )
+    labels_above_freq = Counter(label for label in labels.elements() if (labels[label] >= min_freq))
+    df[label_col] = df[label_col].apply(lambda label: label if label in labels_above_freq else None)
     df[label_col] = df[label_col].fillna(new_label)
     return df
 
 
-def preprocess(
-    df: pd.DataFrame, lower: bool, stem: bool, min_freq: int
-) -> pd.DataFrame:
+def preprocess(df: pd.DataFrame, lower: bool, stem: bool, min_freq: int) -> pd.DataFrame:
     """Preprocess the data by applying text cleaning and oos and minority label replacement.
        Create "text" column with combined text of title and description.
 
@@ -167,7 +156,7 @@ def get_data_splits(X: pd.Series, y: np.ndarray, train_size: float = 0.7) -> Tup
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-## write own Labelencoder based on scikit-learn
+# write own Labelencoder based on scikit-learn
 class LabelEncoder:
     """Encode labels into unique indices.
     ```python
