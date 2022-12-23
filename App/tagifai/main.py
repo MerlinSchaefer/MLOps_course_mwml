@@ -187,7 +187,8 @@ def predict_tag(text: str = "", run_id: str = None) -> List[Dict[str, str]]:
     return prediction
 
 
-#if __name__ == "__main__":
+if __name__ == "__main__":
+    app()
 #    elt_data()
 #    args_filepath = Path(config.CONFIG_DIR, "args.json")
 #    # train_model(args_filepath, experiment_name="test_baselines", run_name="sgd")
