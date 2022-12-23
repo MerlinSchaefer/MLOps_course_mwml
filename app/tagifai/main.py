@@ -10,16 +10,19 @@ import joblib
 import mlflow
 import optuna
 import pandas as pd
-from numpyencoder import NumpyEncoder
-from optuna.integration.mlflow import MLflowCallback
-
+import typer
 import utils
 from config import config
+from numpyencoder import NumpyEncoder
+from optuna.integration.mlflow import MLflowCallback
 from tagifai import data, predict, train
 
 warnings.filterwarnings("ignore")  # necessary for SGD max_iter warning
 
+app = typer.Typer()
 
+
+@app.command()
 def elt_data():
     """Extract, load and transform the data assets"""
     # Extract and Load
@@ -39,7 +42,12 @@ def elt_data():
         print("(Fallback logs) Data extracted and saved.")
 
 
-def train_model(args_filepath: str, experiment_name: str, run_name: str) -> None:
+@app.command()
+def train_model(
+    args_filepath: str = "config/args.json",
+    experiment_name: str = "baselines",
+    run_name: str = "sgd",
+) -> None:
     """Train a model given arguments. Log metrics and save artifacts in model registry.
     Args:
         args_filepath (str): location of args JSON.
@@ -85,9 +93,10 @@ def train_model(args_filepath: str, experiment_name: str, run_name: str) -> None
     utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
 
+@app.command()
 def optimize(
-    args_filepath: str,
-    num_trials: int,
+    args_filepath: str = "config/args.json",
+    num_trials: int = 20,
     study_name: str = "optimization",
 ) -> None:
     """Optimize hyperparameters. Log metrics and save best run in logs and args JSON.
@@ -102,8 +111,12 @@ def optimize(
     args = Namespace(**utils.load_dict(filepath=args_filepath))
     # Optimize
     pruner = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=5)
-    study = optuna.create_study(study_name=study_name, direction="maximize", pruner=pruner)
-    mlflow_callback = MLflowCallback(tracking_uri=mlflow.get_tracking_uri(), metric_name="f1")
+    study = optuna.create_study(
+        study_name=study_name, direction="maximize", pruner=pruner
+    )
+    mlflow_callback = MLflowCallback(
+        tracking_uri=mlflow.get_tracking_uri(), metric_name="f1"
+    )
     study.optimize(
         lambda trial: train.objective(args, df, trial),
         n_trials=num_trials,
@@ -145,7 +158,8 @@ def load_artifacts(run_id: str) -> Dict:
     }
 
 
-def predict_tag(text: str, run_id: str = None) -> List[Dict[str, str]]:
+@app.command()
+def predict_tag(text: str = "", run_id: str = None) -> List[Dict[str, str]]:
     """Predict tag for text.
 
     Args:
