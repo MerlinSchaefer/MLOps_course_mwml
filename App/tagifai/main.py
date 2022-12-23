@@ -1,11 +1,13 @@
 # tagifai/main.py
 import json
+import sys
 import tempfile
 import warnings
 from argparse import Namespace
 from pathlib import Path
 from typing import Dict, List
 
+sys.path.append("..")
 import joblib
 import mlflow
 import optuna
@@ -185,11 +187,12 @@ def predict_tag(text: str = "", run_id: str = None) -> List[Dict[str, str]]:
     return prediction
 
 
-if __name__ == "__main__":
-    args_filepath = Path(config.CONFIG_DIR, "args.json")
-    # train_model(args_filepath, experiment_name="test_baselines", run_name="sgd")
-    optimize(args_filepath, study_name="testrun", num_trials=10)
-    print("Model trained.")
-    text = "Transfer learning with transformers for text classification."
-    run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()
-    predict_tag(text=text, run_id=run_id)
+#if __name__ == "__main__":
+#    elt_data()
+#    args_filepath = Path(config.CONFIG_DIR, "args.json")
+#    # train_model(args_filepath, experiment_name="test_baselines", run_name="sgd")
+#    optimize(args_filepath, study_name="testrun", num_trials=10)
+#    print("Model trained.")
+#    text = "Transfer learning with transformers for text classification."
+#    run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()
+#    predict_tag(text=text, run_id=run_id)

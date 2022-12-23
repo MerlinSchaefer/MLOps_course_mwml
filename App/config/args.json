@@ -7,14 +7,14 @@
   "analyzer": "char_wb",
   "ngram_range": [
     2,
-    6
+    3
   ],
   "alpha": 0.0001,
-  "learning_rate": "constant",
-  "eta0": 0.5645425038263872,
-  "power_t": 0.4193632017640455,
+  "learning_rate": "adaptive",
+  "eta0": 0.11531941152029962,
+  "power_t": 0.10656191944765384,
   "warm_start": true,
   "num_epochs": 100,
-  "threshold": 0.5345199902612255,
-  "ngram_max_range": 7
+  "threshold": 0.6553638208700359,
+  "ngram_max_range": 8
 }
