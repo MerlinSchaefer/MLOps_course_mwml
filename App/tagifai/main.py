@@ -47,7 +47,7 @@ def elt_data():
 
 @app.command()
 def train_model(
-    args_filepath: str = "config/args.json",
+    args_filepath: str = "../config/args.json",
     experiment_name: str = "baselines",
     run_name: str = "sgd",
 ) -> None:
