@@ -13,10 +13,11 @@ import mlflow
 import optuna
 import pandas as pd
 import typer
-import utils
-from config import config
 from numpyencoder import NumpyEncoder
 from optuna.integration.mlflow import MLflowCallback
+
+import utils
+from config import config
 from tagifai import data, predict, train
 
 warnings.filterwarnings("ignore")  # necessary for SGD max_iter warning
