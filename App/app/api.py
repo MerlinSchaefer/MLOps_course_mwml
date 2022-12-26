@@ -55,29 +55,28 @@ def _performance(request: Request, filter: str = None) -> Dict:
     """Get the performance metrics."""
     performance = artifacts["performance"]
     data = {"performance": performance.get(filter, performance)}
-    response = {
+    return {
         "message": HTTPStatus.OK.phrase,
         "status-code": HTTPStatus.OK,
         "data": data,
     }
-    return response
 
 
 @app.get("/args/{arg}")
 @construct_response
 def _arg(request: Request, arg: str) -> Dict:
     """Get a specific parameter's value used for the run."""
-    response = {
+    return {
         "message": HTTPStatus.OK.phrase,
         "status-code": HTTPStatus.OK,
         "data": {arg: vars(artifacts["args"]).get(arg, "")},
     }
-    return response
 
 
 @app.get("/args", tags=["Arguments"])
 @construct_response
 def _args(request: Request) -> Dict:
+    # sourcery skip: inline-immediately-returned-variable
     """Get all arguments used for the run."""
     response = {
         "message": HTTPStatus.OK.phrase,
@@ -99,9 +98,8 @@ def _predict(request: Request, payload: PredictPayload) -> Dict:
     """Predict tags for a list of texts."""
     texts = [item.text for item in payload.texts]
     predictions = predict.predict(texts=texts, artifacts=artifacts)
-    response = {
+    return {
         "message": HTTPStatus.OK.phrase,
         "status-code": HTTPStatus.OK,
         "data": {"predictions": predictions},
     }
-    return response
