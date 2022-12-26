@@ -4,9 +4,10 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import Dict
 
+from app.schemas import PredictPayload
 from config import config
 from fastapi import FastAPI, Request
-from tagifai import main
+from tagifai import main, predict
 
 app = FastAPI(
     title="TagifAI - Made with ML",
@@ -84,5 +85,23 @@ def _args(request: Request) -> Dict:
         "data": {
             "args": vars(artifacts["args"]),
         },
+    }
+    return response
+
+
+from app.schemas import PredictPayload
+from tagifai import predict
+
+
+@app.post("/predict", tags=["Prediction"])
+@construct_response
+def _predict(request: Request, payload: PredictPayload) -> Dict:
+    """Predict tags for a list of texts."""
+    texts = [item.text for item in payload.texts]
+    predictions = predict.predict(texts=texts, artifacts=artifacts)
+    response = {
+        "message": HTTPStatus.OK.phrase,
+        "status-code": HTTPStatus.OK,
+        "data": {"predictions": predictions},
     }
     return response
