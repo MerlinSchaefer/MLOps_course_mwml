@@ -73,6 +73,7 @@ def _arg(request: Request, arg: str) -> Dict:
     }
     return response
 
+
 @app.get("/args", tags=["Arguments"])
 @construct_response
 def _args(request: Request) -> Dict:
