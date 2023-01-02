@@ -31,8 +31,8 @@ def elt_data():
     # Extract and Load
     projects = pd.read_csv(config.PROJECTS_URL)  # features
     tags = pd.read_csv(config.TAGS_URL)  # labels
-    projects.to_csv(Path(config.DATA_DIR, "projects.csv"))
-    tags.to_csv(Path(config.DATA_DIR, "tags.csv"))
+    projects.to_csv(Path(config.DATA_DIR, "projects.csv"), index=False)
+    tags.to_csv(Path(config.DATA_DIR, "tags.csv"), index=False)
 
     # Transform
     df = pd.merge(projects, tags, on="id")
