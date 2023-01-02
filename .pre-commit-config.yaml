@@ -19,7 +19,7 @@ repos:
     rev: 22.3.0
     hooks:
     -   id: black
-        args: []
+        args: [--line-length=120]
         files: .
 -   repo: https://github.com/PyCQA/isort
     rev: 5.10.1
