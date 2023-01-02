@@ -50,12 +50,14 @@ def train_model(
     args_filepath: str = "../config/args.json",
     experiment_name: str = "baselines",
     run_name: str = "sgd",
+    test_run: bool = False,
 ) -> None:
     """Train a model given arguments. Log metrics and save artifacts in model registry.
     Args:
         args_filepath (str): location of args JSON.
         experiment_name (str): name of experiment.
         run_name (str): name of specific run in experiment.
+        test_run (bool, optional): If True, artifacts will not be saved. Defaults to False.
     """
     # Load labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
@@ -77,6 +79,7 @@ def train_model(
             print(json.dumps(performance, indent=2))
 
         # log metrics and parameters
+        performance = artifacts["performance"]
         mlflow.log_metrics({"precision": performance["overall"]["precision"]})
         mlflow.log_metrics({"recall": performance["overall"]["recall"]})
         mlflow.log_metrics({"f1": performance["overall"]["f1"]})
@@ -84,7 +87,7 @@ def train_model(
 
         # Log artifacts
         with tempfile.TemporaryDirectory() as dp:
-            utils.save_dict(vars(artifacts["args"]), (Path(dp, "args.json")))
+            utils.save_dict(vars(artifacts["args"]), Path(dp, "args.json"), cls=NumpyEncoder)
             artifacts["label_encoder"].save(Path(dp, "label_encoder.json"))
             joblib.dump(artifacts["vectorizer"], Path(dp, "vectorizer.pkl"))
             joblib.dump(artifacts["model"], Path(dp, "model.pkl"))
@@ -92,8 +95,9 @@ def train_model(
             mlflow.log_artifacts(dp)
 
     # Save to config
-    open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
-    utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
+    if not test_run:  # pragma: no cover, actual run
+        open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
+        utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
 
 @app.command()
@@ -114,12 +118,8 @@ def optimize(
     args = Namespace(**utils.load_dict(filepath=args_filepath))
     # Optimize
     pruner = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=5)
-    study = optuna.create_study(
-        study_name=study_name, direction="maximize", pruner=pruner
-    )
-    mlflow_callback = MLflowCallback(
-        tracking_uri=mlflow.get_tracking_uri(), metric_name="f1"
-    )
+    study = optuna.create_study(study_name=study_name, direction="maximize", pruner=pruner)
+    mlflow_callback = MLflowCallback(tracking_uri=mlflow.get_tracking_uri(), metric_name="f1")
     study.optimize(
         lambda trial: train.objective(args, df, trial),
         n_trials=num_trials,
