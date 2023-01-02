@@ -21,10 +21,6 @@ repos:
     -   id: black
         args: [--config ./App/pyproject.toml]
         files: .
--   repo: https://gitlab.com/PyCQA/flake8
-    rev: 3.9.2
-    hooks:
-    -   id: flake8
 -   repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
