@@ -7,6 +7,14 @@ help:
 	@echo "style   : executes style formatting."
 	@echo "clean   : cleans all unnecessary files."
 
+
+.PHONY: test
+test:
+	pytest -m "not training"
+	cd tests && great_expectations checkpoint run projects && \
+	great_expectations checkpoint run tags && \
+	great_expectations checkpoint run labeled_projects
+
 # Styling
 .PHONY: style
 style:
@@ -28,3 +36,5 @@ venv:
 	source venv/bin/activate && \
 	python3 -m pip install pip setuptools wheel && \
 	python3 -m pip install -e .
+
+
