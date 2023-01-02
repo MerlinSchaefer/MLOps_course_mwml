@@ -4,9 +4,10 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import Dict
 
+from fastapi import FastAPI, Request
+
 from app.schemas import PredictPayload
 from config import config
-from fastapi import FastAPI, Request
 from tagifai import main, predict
 
 app = FastAPI(

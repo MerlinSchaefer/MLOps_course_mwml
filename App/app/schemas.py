@@ -22,12 +22,8 @@ class PredictPayload(BaseModel):
         schema_extra = {
             "example": {
                 "texts": [
-                    {
-                        "text": "Transfer learning with transformers for text classification."
-                    },
-                    {
-                        "text": "Generative adversarial networks in both PyTorch and TensorFlow."
-                    },
+                    {"text": "Transfer learning with transformers for text classification."},
+                    {"text": "Generative adversarial networks in both PyTorch and TensorFlow."},
                 ]
             }
         }

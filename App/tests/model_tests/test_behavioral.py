@@ -1,6 +1,8 @@
 # tests/model/test_behavioral.py
 from pathlib import Path
+
 import pytest
+
 from config import config
 from tagifai import main, predict
 
