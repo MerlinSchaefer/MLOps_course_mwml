@@ -1,5 +1,6 @@
 black==22.3.0
 dvc==2.10.2
+great-expectations==0.15.15
 fastapi==0.78.0
 flake8==3.9.2
 imbalanced-learn==0.8.1
