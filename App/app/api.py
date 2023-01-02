@@ -4,11 +4,14 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import Dict
 
-from config import config
+
 from fastapi import FastAPI, Request
-from tagifai import main, predict
 
 from app.schemas import PredictPayload
+
+from config import config
+from tagifai import main, predict
+
 
 app = FastAPI(
     title="TagifAI - Made with ML",

@@ -1,0 +1,15 @@
+{
+  "shuffle": true,
+  "subset": null,
+  "lower":true,
+  "stem":false,
+  "min_freq" : 75,
+  "analyzer":"char_wb",
+  "ngram_range":[2,3],
+  "alpha":1e-4,
+  "learning_rate":"adaptive",
+  "eta0":1.0,
+  "power_t":0.4,
+  "warm_start" : true,
+  "num_epochs":10
+}

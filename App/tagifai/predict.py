@@ -37,7 +37,7 @@ def predict(texts: List, artifacts: Dict) -> List:
     return [
         {
             "input_text": texts[i],
-            "predicted_tags": tags[i],
+            "predicted_tag": tags[i],
         }
         for i in range(len(tags))
     ]

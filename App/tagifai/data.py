@@ -169,6 +169,7 @@ class LabelEncoder:
     """
 
     def __init__(self, class_to_index: Dict = {}) -> None:
+        # sourcery skip: default-mutable-arg
         self.class_to_index = class_to_index
 
     @property

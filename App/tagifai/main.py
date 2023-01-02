@@ -31,8 +31,8 @@ def elt_data():
     # Extract and Load
     projects = pd.read_csv(config.PROJECTS_URL)  # features
     tags = pd.read_csv(config.TAGS_URL)  # labels
-    projects.to_csv(Path(config.DATA_DIR, "projects.csv"))
-    tags.to_csv(Path(config.DATA_DIR, "tags.csv"))
+    projects.to_csv(Path(config.DATA_DIR, "projects.csv"), index=False)
+    tags.to_csv(Path(config.DATA_DIR, "tags.csv"), index=False)
 
     # Transform
     df = pd.merge(projects, tags, on="id")
@@ -50,12 +50,14 @@ def train_model(
     args_filepath: str = "../config/args.json",
     experiment_name: str = "baselines",
     run_name: str = "sgd",
+    test_run: bool = False,
 ) -> None:
     """Train a model given arguments. Log metrics and save artifacts in model registry.
     Args:
         args_filepath (str): location of args JSON.
         experiment_name (str): name of experiment.
         run_name (str): name of specific run in experiment.
+        test_run (bool, optional): If True, artifacts will not be saved. Defaults to False.
     """
     # Load labeled data
     df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
@@ -77,6 +79,7 @@ def train_model(
             print(json.dumps(performance, indent=2))
 
         # log metrics and parameters
+        performance = artifacts["performance"]
         mlflow.log_metrics({"precision": performance["overall"]["precision"]})
         mlflow.log_metrics({"recall": performance["overall"]["recall"]})
         mlflow.log_metrics({"f1": performance["overall"]["f1"]})
@@ -84,7 +87,7 @@ def train_model(
 
         # Log artifacts
         with tempfile.TemporaryDirectory() as dp:
-            utils.save_dict(vars(artifacts["args"]), (Path(dp, "args.json")))
+            utils.save_dict(vars(artifacts["args"]), Path(dp, "args.json"), cls=NumpyEncoder)
             artifacts["label_encoder"].save(Path(dp, "label_encoder.json"))
             joblib.dump(artifacts["vectorizer"], Path(dp, "vectorizer.pkl"))
             joblib.dump(artifacts["model"], Path(dp, "model.pkl"))
@@ -92,8 +95,9 @@ def train_model(
             mlflow.log_artifacts(dp)
 
     # Save to config
-    open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
-    utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
+    if not test_run:  # pragma: no cover, actual run
+        open(Path(config.CONFIG_DIR, "run_id.txt"), "w").write(run_id)
+        utils.save_dict(performance, Path(config.CONFIG_DIR, "performance.json"))
 
 
 @app.command()
