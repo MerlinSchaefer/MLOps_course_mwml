@@ -16,9 +16,8 @@ import typer
 from numpyencoder import NumpyEncoder
 from optuna.integration.mlflow import MLflowCallback
 
-import utils
 from config import config
-from tagifai import data, predict, train
+from tagifai import data, predict, train, utils
 
 warnings.filterwarnings("ignore")  # necessary for SGD max_iter warning
 
