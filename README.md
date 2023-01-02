@@ -51,9 +51,18 @@ To view the documentation navigate to the `App/` directory activate the virtual 
 ```bash
 python3 -m mkdocs serve
 ```
+
 ## API
 
 ```bash
 uvicorn app.api:app --host 0.0.0.0 --port 8000 --reload --reload-dir tagifai --reload-dir app  # dev
 gunicorn -c app/gunicorn.py -k uvicorn.workers.UvicornWorker app.api:app  # prod
+```
+
+## Tests
+
+Tests are available in the `App/` directory. Make sure to install the test packages.
+
+```bash
+python3 -m pytest -m "not training" -v
 ```
