@@ -4,10 +4,11 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import Dict
 
-from app.schemas import PredictPayload
 from config import config
 from fastapi import FastAPI, Request
 from tagifai import main, predict
+
+from app.schemas import PredictPayload
 
 app = FastAPI(
     title="TagifAI - Made with ML",
@@ -88,8 +89,9 @@ def _args(request: Request) -> Dict:
     return response
 
 
-from app.schemas import PredictPayload
 from tagifai import predict
+
+from app.schemas import PredictPayload
 
 
 @app.post("/predict", tags=["Prediction"])
