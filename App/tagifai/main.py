@@ -114,12 +114,8 @@ def optimize(
     args = Namespace(**utils.load_dict(filepath=args_filepath))
     # Optimize
     pruner = optuna.pruners.MedianPruner(n_startup_trials=5, n_warmup_steps=5)
-    study = optuna.create_study(
-        study_name=study_name, direction="maximize", pruner=pruner
-    )
-    mlflow_callback = MLflowCallback(
-        tracking_uri=mlflow.get_tracking_uri(), metric_name="f1"
-    )
+    study = optuna.create_study(study_name=study_name, direction="maximize", pruner=pruner)
+    mlflow_callback = MLflowCallback(tracking_uri=mlflow.get_tracking_uri(), metric_name="f1")
     study.optimize(
         lambda trial: train.objective(args, df, trial),
         n_trials=num_trials,
@@ -142,7 +138,17 @@ def load_artifacts(run_id: str) -> Dict:
         Dict: run's artifacts.
     """
     # Locate specifics artifacts directory
-    experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
+    try:
+        experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
+    except mlflow.exceptions.MlflowException:
+        print("Could not find run. Falling back to latest run.")
+        experiments = mlflow.list_experiments()
+        all_runs = mlflow.search_runs(
+            experiment_ids=experiments[-1].experiment_id, order_by=["metric.f1"]
+        )
+        run_id = all_runs.iloc[-1].run_id
+        print(run_id)
+        experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
     artifacts_dir = Path(config.MODEL_REGISTRY, experiment_id, run_id, "artifacts")
 
     # Load objects from run
