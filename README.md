@@ -20,7 +20,7 @@ In my repo the explorative part is split into three directories with respective 
     └── train.py        - training utilities
 ├── app/
     ├── api.py          - FastAPI app
-    ├── gunicorn.py     - WSGI script    
+    ├── gunicorn.py     - WSGI script
     └── schemas.py      - API model schemas
 ├── setup.py         - setup script
 ├── requirements.txt - training/optimization pipelines
@@ -38,7 +38,7 @@ source venv/bin/activate
 python3 -m pip install pip setuptools wheel
 python3 -m pip install -e .
 ```
-alternatively run install make and run 
+alternatively run install make and run
 
 ```bash
 make venv

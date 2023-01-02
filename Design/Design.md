@@ -57,7 +57,7 @@ Develop a model that can classify the incoming content so that it can be organiz
 - user feedback process for incorrectly classified content.
 - workflows to categorize content that the service was incorrect about or not as confident in.
 - duplicate screening for content that already exists on the platform.
-  
+
 **Integrations:**
 
 - categorized content will be sent to the UI service to be displayed.
@@ -66,13 +66,13 @@ Develop a model that can classify the incoming content so that it can be organiz
 **Alternatives:**
 
 - allow users to add content manually (bottleneck).
-  
+
 **Constraints:**
 
 - maintain low latency (>100ms) when classifying incoming content. [Latency]
 - only recommend tags from our list of approved tags. [Security]
 - avoid duplicate content from being added to the platform. [UI/UX]
-  
+
 **Out-of-scope:**
 
 - identify relevant tags beyond our approved list of tags.
@@ -87,7 +87,7 @@ How feasible is our solution and do we have the required resources to deliver it
 **We have a dataset of ML content that our users have manually added to the platform. We'll need to assess if it has the necessary signals to meet our objectives.**
 
 e.g.
-```json 
+```json
 {
     "id": 443,
     "created_on": "2020-04-10 17:51:39",
@@ -155,7 +155,7 @@ Describe the labeling process and how we settled on the features and labels.
 One of the hardest challenges with evaluation is tying our core objectives (may be qualitative) with quantitative metrics that our model can optimize on.
 
 - We want to be able to classify incoming data with high precision so we can display them properly. For the projects that we categorize as other, we can recall any misclassified content using manual labeling workflows. We may also want to evaluate performance for specific classes or slices of data.
-  
+
 - Offline evaluation: We'll be using the historical dataset for offline evaluation. We'll also be creating slices of data that we want to evaluate in isolation.
 
 - Online evaluation:
@@ -163,7 +163,7 @@ One of the hardest challenges with evaluation is tying our core objectives (may 
   - asking the initial set of users viewing a newly categorized content if it's correctly classified.
   - allow users to report misclassified content by our model.
 
-- It's important that we measure real-time performance before committing to replace our existing version of the system. 
+- It's important that we measure real-time performance before committing to replace our existing version of the system.
   - Internal canary rollout, monitoring for proxy/actual performance, etc.
   - Rollout to the larger internal team for more feedback.
   - A/B rollout to a subset of the population to better understand UX, utility, etc.
@@ -174,9 +174,9 @@ One of the hardest challenges with evaluation is tying our core objectives (may 
 While the specific methodology we employ can differ based on the problem, there are core principles we always want to follow:
 
 - **End-to-end utility**: the end result from every iteration should deliver minimum end-to-end utility so that we can benchmark iterations against each other and plug-and-play with the system.
-  
+
 - **Manual before ML**: incorporate deterministic components where we define the rules before using probabilistic ones that infer rules from data → baselines.
-  
+
 - **Augment vs. automate**: allow the system to supplement the decision making process as opposed to making the final decision.
 
 - **Internal vs. external**: not all early releases have to be end-user facing. We can use early versions for internal validation, feedback, data collection, etc.
@@ -192,7 +192,7 @@ How do we receive feedback on our system and incorporate it into the next iterat
 
 >**Attention**
 > *Always return to the value proposition*
-> 
+>
 > While it's important to iterate and optimize the internals of our workflows, it's even more important to ensure that our ML systems are actually making an impact. We need to constantly engage with stakeholders (management, users) to iterate on why our ML system exists.
 
 

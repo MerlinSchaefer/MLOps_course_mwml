@@ -12,8 +12,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import log_loss
 
-import utils
-from tagifai import data, evaluate, predict
+from tagifai import data, evaluate, predict, utils
 
 
 def train(args: Namespace, df: pd.DataFrame, trial: optuna.trial._trial = None) -> Dict:
