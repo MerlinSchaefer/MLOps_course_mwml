@@ -142,7 +142,17 @@ def load_artifacts(run_id: str) -> Dict:
         Dict: run's artifacts.
     """
     # Locate specifics artifacts directory
-    experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
+    try:
+        experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
+    except mlflow.exceptions.MlflowException:
+        print("Could not find run. Falling back to latest run.")
+        experiments = mlflow.list_experiments()
+        all_runs = mlflow.search_runs(
+            experiment_ids=experiments[-1].experiment_id, order_by=["metric.f1"]
+        )
+        run_id = all_runs.iloc[-1].run_id
+        print(run_id)
+        experiment_id = mlflow.get_run(run_id=run_id).info.experiment_id
     artifacts_dir = Path(config.MODEL_REGISTRY, experiment_id, run_id, "artifacts")
 
     # Load objects from run
