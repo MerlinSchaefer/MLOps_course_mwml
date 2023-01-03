@@ -32,6 +32,13 @@ clean: style
 	find . | grep -E ".trash" | xargs rm -rf
 	rm -f .coverage
 
+.PHONY: dvc
+dvc:
+	dvc add data/projects.csv
+	dvc add data/tags.csv
+	dvc add data/labeled_projects.csv
+	dvc push
+
 .ONESHELL:
 venv:
 	python3 -m venv venv
