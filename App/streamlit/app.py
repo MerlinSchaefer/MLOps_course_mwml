@@ -7,7 +7,12 @@ from config import config
 from tagifai import main, utils
 
 # load dataframe
-df = pd.read_csv(Path(config.DATA_DIR, "labeled_projects.csv"))
+@st.cache()
+def load_data():
+    projects_fp = Path(config.DATA_DIR, "labeled_projects.csv")
+    return pd.read_csv(projects_fp)
+
+df = load_data()
 # load atrifacts and metrics of last run
 run_id = open(Path(config.CONFIG_DIR, "run_id.txt")).read()
 
@@ -49,3 +54,10 @@ display_metric_cols(performance=performance["slices"][tag])
 
 
 st.header("🚀 Inference")
+
+text = st.text_input("Enter text:", "Transfer learning with transformers for text classification.")
+run_id = st.text_input("Enter run ID:", open(Path(config.CONFIG_DIR, "run_id.txt")).read())
+prediction = main.predict_tag(text=text, run_id=run_id)
+for entry in range(len(prediction)):
+    st.write(f"**Your input:** {prediction[entry]['input_text']}")
+    st.write(f"**Predicted tag:** {prediction[entry]['predicted_tag']}")
