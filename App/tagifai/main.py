@@ -102,7 +102,7 @@ def train_model(
 
 @app.command()
 def optimize(
-    args_filepath: str = "config/args.json",
+    args_filepath: str = "../config/args.json",
     num_trials: int = 20,
     study_name: str = "optimization",
 ) -> None:
