@@ -136,4 +136,6 @@ experiments/
 model/
 
 # custom
-app/data/
+logs/
+stores/
+#App/data/
