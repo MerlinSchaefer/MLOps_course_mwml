@@ -12,15 +12,15 @@ from rich.logging import RichHandler
 BASE_DIR = Path(__file__).parent.parent.absolute()
 CONFIG_DIR = Path(BASE_DIR, "config")
 DATA_DIR = Path(BASE_DIR, "data")
-
+STORES_DIR = Path(BASE_DIR, "stores")
 # Create dirs
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Data source assets
-PROJECTS_URL = (
-    "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/projects.csv"
+PROJECTS_URL = "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/projects.csv"
+TAGS_URL = (
+    "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/tags.csv"
 )
-TAGS_URL = "https://raw.githubusercontent.com/GokuMohandas/Made-With-ML/main/datasets/tags.csv"
 
 
 # Data preprocessing
@@ -38,10 +38,14 @@ stemmer = PorterStemmer()
 
 
 # Model tracking
-STORES_DIR = Path(BASE_DIR, "stores")
 MODEL_REGISTRY = Path(BASE_DIR, "model")
 MODEL_REGISTRY.mkdir(parents=True, exist_ok=True)
 mlflow.set_tracking_uri(f"file://{str(MODEL_REGISTRY.absolute())}")  # add / for windows
+
+# DVC
+BLOB_STORE = Path(STORES_DIR, "blob")
+BLOB_STORE.mkdir(parents=True, exist_ok=True)
+
 
 # Logs
 LOGS_DIR = Path(BASE_DIR, "logs")
@@ -94,6 +98,6 @@ if __name__ == "__main__":
     # Sample messages (note that we use configured `logger` now)
     logger.debug("Used for debugging your code.")
     logger.info("Informative messages from your code.")
-    logger.warning("Everything works but there is something to be aware of.")
-    logger.error("There's been a mistake with the process.")
-    logger.critical("There is something terribly wrong and process may terminate.")
+    # logger.warning("Everything works but there is something to be aware of.")
+    # logger.error("There's been a mistake with the process.")
+    # logger.critical("There is something terribly wrong and process may terminate.")
