@@ -2,15 +2,18 @@ from pathlib import Path
 from typing import Dict
 
 import pandas as pd
+
 import streamlit as st
 from config import config
 from tagifai import main, utils
+
 
 # load dataframe
 @st.cache()
 def load_data():
     projects_fp = Path(config.DATA_DIR, "labeled_projects.csv")
     return pd.read_csv(projects_fp)
+
 
 df = load_data()
 # load atrifacts and metrics of last run
