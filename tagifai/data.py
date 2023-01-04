@@ -69,9 +69,7 @@ def clean_text(
 
     # Stemming
     if stem:
-        text = " ".join(
-            [config.stemmer.stem(word, to_lowercase=lower) for word in text.split(" ")]
-        )
+        text = " ".join([config.stemmer.stem(word, to_lowercase=lower) for word in text.split(" ")])
 
     return text
 
@@ -111,19 +109,13 @@ def replace_minority_labels(
         pd.DataFrame: Feature Dataframe with labels column adjusted to allowed labels.
     """
     labels = Counter(df[label_col].values)
-    labels_above_freq = Counter(
-        label for label in labels.elements() if (labels[label] >= min_freq)
-    )
-    df[label_col] = df[label_col].apply(
-        lambda label: label if label in labels_above_freq else None
-    )
+    labels_above_freq = Counter(label for label in labels.elements() if (labels[label] >= min_freq))
+    df[label_col] = df[label_col].apply(lambda label: label if label in labels_above_freq else None)
     df[label_col] = df[label_col].fillna(new_label)
     return df
 
 
-def preprocess(
-    df: pd.DataFrame, lower: bool, stem: bool, min_freq: int
-) -> pd.DataFrame:
+def preprocess(df: pd.DataFrame, lower: bool, stem: bool, min_freq: int) -> pd.DataFrame:
     """Preprocess the data by applying text cleaning and oos and minority label replacement.
        Create "text" column with combined text of title and description.
 
