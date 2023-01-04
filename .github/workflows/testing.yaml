@@ -22,6 +22,6 @@ jobs:
         uses: actions/cache@v2
         with:
           path: $/{/{ env.pythonLocation /}/}
-          key: $/{/{ env.pythonLocation /}/}-$/{/{ hashFiles('App/setup.py') /}/}-$/{/{ hashFiles('App/requirements.txt') /}/}
+          key: $/{/{ env.pythonLocation /}/}-$/{/{ hashFiles('setup.py') /}/}-$/{/{ hashFiles('requirements.txt') /}/}
       - name: Execute tests
         run: pytest tests/tagifai --ignore tests/code/test_main.py --ignore tests/code/test_data.py
